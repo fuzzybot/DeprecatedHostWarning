@@ -1,0 +1,8 @@
+# Name of plugin
+name: ${pom.artifactId}
+
+# Version of plugin
+version: ${pom.version}
+
+# Main class
+main: net.hmksq.dhw.DeprecatedHostWarning

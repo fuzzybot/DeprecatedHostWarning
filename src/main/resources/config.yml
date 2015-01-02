@@ -1,0 +1,7 @@
+OldHostMessage: 
+    - '&4You are logged in with an old server address!'
+    - '&aNew server address: &9new.spigotmc.org'
+
+OldHosts:
+    - 'old.spigotmc.org'
+    - 'craftmine.no-ip.org'
