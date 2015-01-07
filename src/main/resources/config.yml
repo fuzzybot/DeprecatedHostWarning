@@ -1,3 +1,5 @@
+Mode: WARN
+
 OldHostMessage: 
     - '&4You are logged in with an old server address!'
     - '&aNew server address: &9new.spigotmc.org'
