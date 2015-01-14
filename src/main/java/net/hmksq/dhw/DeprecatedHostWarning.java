@@ -1,6 +1,7 @@
 package net.hmksq.dhw;
 
 import net.md_5.bungee.api.chat.ComponentBuilder;
+import net.md_5.bungee.api.connection.PendingConnection;
 import net.md_5.bungee.api.event.PostLoginEvent;
 import net.md_5.bungee.api.event.PreLoginEvent;
 import net.md_5.bungee.api.plugin.Listener;
@@ -57,19 +58,25 @@ public class DeprecatedHostWarning extends Plugin implements Listener {
         }
     }
 
+    public boolean checkHostDeprecated(PendingConnection connection) {
+        String loginHost = connection.getVirtualHost().getHostString();
+        List<String> list = config.getStringList("OldHosts");
+
+        for (String configHost : list) {
+            if (configHost.equalsIgnoreCase(loginHost)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 
     @EventHandler
     public void onLogin(PostLoginEvent event) {
         if (config.getString("Mode").equalsIgnoreCase("WARN")) {
-            String loginHost = event.getPlayer().getPendingConnection().getVirtualHost().getHostString();
-
-            List<String> list = config.getStringList("OldHosts");
-
-            for (String configHost : list) {
-                if (configHost.equalsIgnoreCase(loginHost)) {
-                    for (String newline : config.getStringList("OldHostMessage")) {
-                        event.getPlayer().sendMessage(new ComponentBuilder(newline.replace('&', '§')).create());
-                    }
+            if (checkHostDeprecated(event.getPlayer().getPendingConnection())) {
+                for (String newline : config.getStringList("OldHostMessage")) {
+                    event.getPlayer().sendMessage(new ComponentBuilder(newline.replace('&', '§')).create());
                 }
             }
         }
@@ -78,20 +85,15 @@ public class DeprecatedHostWarning extends Plugin implements Listener {
     @EventHandler
     public void onPreLogin(PreLoginEvent event) {
         if (config.getString("Mode").equalsIgnoreCase("KICK")) {
-            String loginHost = event.getConnection().getVirtualHost().getHostString();
             List<String> list = config.getStringList("OldHosts");
+            if (checkHostDeprecated(event.getConnection())) {
+                String kickMsg = "";
 
-            for (String configHost : list) {
-                if (configHost.equalsIgnoreCase(loginHost)) {
-                    String kickMsg = "";
-
-                    for (String newline : config.getStringList("OldHostMessage")) {
-                        kickMsg = kickMsg + newline.replace('&', '§') + "\n";
-                    }
-
-                    event.setCancelReason(kickMsg);
-                    event.setCancelled(true);
+                for (String newline : config.getStringList("OldHostMessage")) {
+                    kickMsg = kickMsg + newline.replace('&', '§') + "\n";
                 }
+                event.setCancelReason(kickMsg);
+                event.setCancelled(true);
             }
         }
     }
